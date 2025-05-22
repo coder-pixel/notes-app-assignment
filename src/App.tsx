@@ -1,9 +1,10 @@
 import { Toaster } from "react-hot-toast";
+import NotesApp from "./NotesApp";
 
 function App() {
   return (
     <>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
+      <NotesApp />
 
       <Toaster />
     </>

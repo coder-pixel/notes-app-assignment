@@ -11,5 +11,5 @@ export const createNote = (note: Note) =>
 export const updateNote = (note: Note) =>
   axios.put(`${BACKEND_BASE_URL}/notes/${note?.id}`, note);
 
-export const deleteRemoteNote = (id: string) =>
+export const deleteNote = (id: string) =>
   axios.delete(`${BACKEND_BASE_URL}/notes/${id}`);

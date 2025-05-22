@@ -28,10 +28,11 @@ export const errorHandler = (error: unknown, options?: ToastOptions) => {
     typeof error === "object" &&
     error !== null &&
     "message" in error &&
-    typeof (error as any).message === "string"
+    typeof (error as any)?.message === "string"
   ) {
-    message = (error as any).message;
+    message = (error as any)?.message;
   }
 
   baseToast(message, "error", options);
+  console.log({ message });
 };

@@ -24,6 +24,7 @@ export const toastSuccess = (message: string, options?: ToastOptions) => {
 };
 
 export const errorHandler = (error: unknown, options?: ToastOptions) => {
+  toast.dismiss(); // dismiss all previous toasts, to prevent multiple error toasts - can be removed if not required
   let message = "Something went wrong...";
 
   if (
@@ -35,7 +36,9 @@ export const errorHandler = (error: unknown, options?: ToastOptions) => {
     message = (error as any)?.message;
   }
 
-  baseToast(message, "error", options);
+  // baseToast(message, "error", options);
+  const customErrorMessage = "Server not connected, please try again!";
+  baseToast(customErrorMessage, "error", options);
   console.log({ message });
 };
 

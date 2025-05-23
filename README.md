@@ -16,8 +16,36 @@ A lightweight offline-first markdown note-taking app built with React, TypeScrip
 
 1. Clone the frontend repo and go inside it:
    ```bash
-   git clone https://github.com/your-username/offline-notes-app.git
+   git clone https://github.com/coder-pixel/notes-app-assignment.git
    cd offline-notes-app
 
-2. Install dependencies:
-    ```npm install
+
+1. Install dependencies:   
+    ```bash
+    npm install
+
+3. Start the dev server:
+    ```bash
+    npm run dev
+
+---
+
+### 🔧 Backend Setup (Mock API)
+You can set this up in a separate folder or repo
+
+1. Create a simple db.json file:
+    ```bash
+    {
+        "notes": []
+    }
+
+
+2. Install json-server globally if not already:
+    ```bash
+    npm install -g json-server
+    
+3. Start the server:
+    ```bash
+    json-server --watch db.json --port 5000
+
+4. Your mock API is now live at: http://localhost:5000/notes

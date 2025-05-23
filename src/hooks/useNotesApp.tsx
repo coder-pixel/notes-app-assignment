@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import type { Note } from "../types/note";
 import useOnlineStatus from "./useOnlineStatus";
 import {
-  getAllNotes,
   saveNote,
   deleteNote as removeNote,
+  getAllNotes,
 } from "../db/indexedDB";
 import { v4 as uuidv4 } from "uuid";
 
@@ -14,7 +14,9 @@ import {
   deleteNote as apiDelete,
   fetchNotes as apiFetch,
 } from "../services/api";
-import { errorHandler } from "../helper-methods/index";
+import { errorHandler, toastSuccess } from "../helper-methods/index";
+import { BACKEND_BASE_URL } from "../config";
+import { mergeRemoteNotes } from "../helper-methods/mergeRemoteNotes";
 
 const useNotesApp = () => {
   const [notes, setNotes] = useState<Note[]>([]); // list of all notes
@@ -79,26 +81,70 @@ const useNotesApp = () => {
     [notes, selectedId]
   );
 
-  // Load notes from IndexedDB on startup
-  useEffect(() => {
-    const loadNotes = async () => {
-      const stored = await getAllNotes();
-      // Sort by last updated
-      setNotes(
-        stored?.sort((a, b) => {
-          const dateA = a?.updatedAt
-            ? new Date(a.updatedAt)
-            : new Date(a.createdAt);
-          const dateB = b?.updatedAt
-            ? new Date(b.updatedAt)
-            : new Date(b.createdAt);
-          return dateB.getTime() - dateA.getTime();
-        })
-      );
-    };
+  const _initNotes = async () => {
+    if (isOnline) {
+      // 1. Try to fetch and merge from backend
+      try {
+        const res = await fetch(`${BACKEND_BASE_URL}/notes`);
+        const remoteNotes = await res?.json();
 
-    loadNotes();
+        await mergeRemoteNotes(remoteNotes);
+        toastSuccess("Merged remote notes into local DB");
+      } catch (err) {
+        errorHandler({ message: `Error syncing from backend: ${err}` });
+      }
+    }
+
+    // 2. Load merged notes from local
+    const stored = await getAllNotes();
+    // console.log({ stored });
+    setNotes(
+      stored?.sort((a, b) => {
+        const dateA = new Date(a.updatedAt ?? a.createdAt);
+        const dateB = new Date(b.updatedAt ?? b.createdAt);
+        return dateB.getTime() - dateA.getTime();
+      })
+    );
+  };
+
+  // First Sync notes from backend (deployed on render) and merge into IndexedDB
+  // Then load from IndexedDB and set state again
+  useEffect(() => {
+    _initNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Load notes from IndexedDB on startup
+  // useEffect(() => {
+  //   const loadNotes = async () => {
+  //     const stored = await getAllNotes();
+  //     // Sort by last updated
+  //     setNotes(
+  //       stored?.sort((a, b) => {
+  //         const dateA = a?.updatedAt
+  //           ? new Date(a.updatedAt)
+  //           : new Date(a.createdAt);
+  //         const dateB = b?.updatedAt
+  //           ? new Date(b.updatedAt)
+  //           : new Date(b.createdAt);
+  //         return dateB.getTime() - dateA.getTime();
+  //       })
+  //     );
+  //   };
+
+  //   loadNotes();
+  // }, []);
+
+  // useEffect(() => {
+  //   const syncFromBackend = async () => {
+  //     if (navigator.onLine) {
+  //       const res = await fetch("https://your-backend.onrender.com/notes");
+  //       const remoteNotes = await res.json();
+  //       await localNoteService.mergeRemoteNotes(remoteNotes); // logic needed
+  //     }
+  //   };
+  //   syncFromBackend();
+  // }, []);
 
   // Sync local unsynced notes when online
   useEffect(() => {

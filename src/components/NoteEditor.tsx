@@ -72,7 +72,7 @@ const NoteEditor = ({ note, onUpdate, onDelete }: NoteEditorProps) => {
         {/* Delete Button */}
         <button
           onClick={() => _onDeleteAlert(note?.id)}
-          className="text-red-500 hover:text-red-700 cursor-pointer p-2"
+          className="text-red-600 hover:text-red-800 cursor-pointer p-2"
           aria-label="Delete Note"
           title="Delete Note"
         >
